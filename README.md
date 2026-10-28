@@ -8,7 +8,10 @@ O pacote é distribuído como **código-fonte** (sem build): o app que consome c
 
 ```
 src/
-├── components/      # Componentes do shadcn (button.tsx, dialog.tsx, ...)
+├── components/
+│   ├── button.tsx, dialog.tsx, ...   # shadcn (arquivo solto, kebab-case)
+│   └── ConfirmDeleteDialog/index.tsx # customizados (pasta PascalCase + index.tsx)
+├── providers/       # Providers de contexto (theme-provider.tsx)
 ├── hooks/           # Hooks que os componentes do shadcn instalarem
 ├── lib/utils.ts     # cn()
 └── styles/
@@ -17,10 +20,14 @@ src/
 
 | Import | Arquivo |
 |---|---|
-| `@lib/ui/components/<nome>` | `src/components/<nome>.tsx` |
+| `@lib/ui/components/<nome>` | `src/components/<nome>.tsx` (shadcn) |
+| `@lib/ui/components/<Nome>` | `src/components/<Nome>/index.tsx` (customizado, registrado em `exports`) |
+| `@lib/ui/providers/<nome>` | `src/providers/<nome>.tsx` |
 | `@lib/ui/lib/utils` | `src/lib/utils.ts` |
 | `@lib/ui/hooks/<nome>` | `src/hooks/<nome>.ts` |
 | `@lib/ui/globals.css` | `src/styles/globals.css` |
+
+Componentes customizados disponíveis: `ConfirmDeleteDialog`, `FilterSelect` e `ModeToggle` (alternância claro/escuro/sistema).
 
 ## Usando em um projeto (Next.js + pnpm workspace)
 
@@ -75,7 +82,7 @@ const inter = Inter({ variable: '--font-inter', subsets: ['latin'] })
 ```tsx
 import { Toaster } from '@lib/ui/components/sonner'
 import { TooltipProvider } from '@lib/ui/components/tooltip'
-import { ThemeProvider } from 'next-themes'
+import { ThemeProvider } from '@lib/ui/providers/theme-provider'
 
 <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
   <TooltipProvider>{children}</TooltipProvider>
@@ -115,6 +122,17 @@ pnpm dlx shadcn@latest add <componente>
 ```
 
 O CLI lê os dois `components.json` e grava o componente em `packages/lib-ui/src/components`, com os imports já apontando para `@lib/ui/...`. Dependências novas do componente entram no `package.json` do lib. Depois, faça o commit **no repositório do lib** e atualize o ponteiro do submódulo no projeto.
+
+## Criando um componente customizado
+
+1. Crie `src/components/<Nome>/index.tsx` (PascalCase), compondo os componentes do shadcn com imports `@lib/ui/...`.
+2. Registre no `exports` do `package.json`, **antes** do padrão `./components/*` (que só resolve arquivos `.tsx` soltos):
+
+```json
+"./components/<Nome>": "./src/components/<Nome>/index.tsx",
+```
+
+Sem esse registro, o import funciona neste monorepo por causa do `paths` do `tsconfig`, mas quebra em ferramentas e projetos que resolvem só pelo pacote (Node, Vitest sem alias, etc.).
 
 ## Atualizando o lib em outro projeto
 

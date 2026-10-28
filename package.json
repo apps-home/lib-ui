@@ -5,7 +5,11 @@
   "type": "module",
   "exports": {
     "./globals.css": "./src/styles/globals.css",
+    "./components/ConfirmDeleteDialog": "./src/components/ConfirmDeleteDialog/index.tsx",
+    "./components/FilterSelect": "./src/components/FilterSelect/index.tsx",
+    "./components/ModeToggle": "./src/components/ModeToggle/index.tsx",
     "./components/*": "./src/components/*.tsx",
+    "./providers/*": "./src/providers/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
     "./lib/*": "./src/lib/*.ts"
   },
